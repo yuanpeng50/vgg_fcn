@@ -106,7 +106,9 @@ upsampled_logits = tf.nn.conv2d_transpose(logits, upsample_filter_tensor_x2,
 
 upsampled_logits = upsampled_logits + aux_logits_16s
 
-#here my code !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#这里是添加的代码，fcn8x：在pool3层添加一个卷积核大小为1*1的卷积层，产生一个额外的输出，
+#然后再把fcn-16中融合的结果进行上采样步长为2的反卷积，把两个输出进行融合，接着是进行步长为8的反卷积，最后再对这个预测进行分类。
+#主要补充了pool3层的卷积。
 pool5_feature = end_points['vgg_16/pool3']
 with tf.variable_scope('vgg_16/fc8'):
     aux_logits_8s = slim.conv2d(pool5_feature, number_of_classes, [1, 1],
@@ -122,7 +124,7 @@ upsampled_logits = tf.nn.conv2d_transpose(upsampled_logits, upsample_filter_tens
 upsampled_logits = upsampled_logits + aux_logits_8s
 
 
-
+# 进行上采样
 upsample_filter_np_x8 = bilinear_upsample_weights(upsample_factor,
                                                    number_of_classes)
 
